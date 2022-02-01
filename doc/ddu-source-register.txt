@@ -1,0 +1,42 @@
+*ddu-source-register.txt*	register source for ddu.vim
+
+Author: Shougo <Shougo.Matsu at gmail.com>
+License: MIT license
+
+CONTENTS					*ddu-source-register-contents*
+
+Introduction		|ddu-source-register-introduction|
+Install			|ddu-source-register-install|
+Examples		|ddu-source-register-examples|
+Params			|ddu-source-register-params|
+
+
+==============================================================================
+INTRODUCTION				*ddu-source-register-introduction*
+
+This source collects current registers.
+
+
+==============================================================================
+INSTALL						*ddu-source-register-install*
+
+Please install both "ddu.vim" and "denops.vim" and "ddu-kind-word".
+
+https://github.com/Shougo/ddu.vim
+https://github.com/vim-denops/denops.vim
+https://github.com/Shougo/ddu-kind-word
+
+
+==============================================================================
+EXAMPLES					*ddu-source-register-examples*
+>
+	" Use register source.
+	call ddu#start({'sources': [{'name': 'register'}]})
+<
+
+==============================================================================
+PARAMS						*ddu-source-register-params*
+
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:fen:noet:
