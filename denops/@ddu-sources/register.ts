@@ -2,8 +2,8 @@ import {
   BaseSource,
   Context,
   Item,
-} from "https://deno.land/x/ddu_vim@v0.1.0/types.ts";
-import { Denops, fn } from "https://deno.land/x/ddu_vim@v0.1.0/deps.ts";
+} from "https://deno.land/x/ddu_vim@v0.5.0/types.ts";
+import { Denops, fn } from "https://deno.land/x/ddu_vim@v0.5.0/deps.ts";
 
 type Params = Record<never, never>;
 
@@ -48,6 +48,14 @@ export class Source extends BaseSource<Params> {
                   text: register,
                   regType: await fn.getregtype(args.denops, name) as string,
                 },
+                highlights: [
+                  {
+                    name: "header",
+                    "hl_group": "Special",
+                    col: 1,
+                    width: 2,
+                  },
+                ],
             })
         }
         controller.enqueue(items);
