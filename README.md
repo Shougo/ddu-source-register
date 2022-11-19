@@ -21,6 +21,5 @@ https://github.com/Shougo/ddu-kind-word
 ## Configuration
 
 ```vim
-" Use register source.
-call ddu#start({'sources': [{'name': 'register'}]})
+call ddu#start(#{ sources: [#{ name: 'register' }] })
 ```
