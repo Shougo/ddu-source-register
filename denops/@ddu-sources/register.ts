@@ -13,9 +13,9 @@ export type ActionData = {
 };
 
 export class Source extends BaseSource<Params> {
-  kind = "word";
+  override kind = "word";
 
-  gather(args: {
+  override gather(args: {
     denops: Denops;
     context: Context;
     sourceParams: Params;
@@ -64,7 +64,7 @@ export class Source extends BaseSource<Params> {
     });
   }
 
-  params(): Params {
+  override params(): Params {
     return {};
   }
 }
