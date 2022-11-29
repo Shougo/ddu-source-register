@@ -4,6 +4,7 @@ import {
   Item,
 } from "https://deno.land/x/ddu_vim@v2.0.0/types.ts";
 import { Denops, fn } from "https://deno.land/x/ddu_vim@v2.0.0/deps.ts";
+import { defer } from "https://deno.land/x/denops_defer@v0.4.0/batch/defer.ts";
 
 type Params = Record<never, never>;
 
@@ -22,6 +23,7 @@ export class Source extends BaseSource<Params> {
   }): ReadableStream<Item<ActionData>[]> {
     return new ReadableStream({
       async start(controller) {
+        // deno-fmt-ignore
         const registers = (await fn.has(args.denops, "clipboard") ?
                            ['+', '*'] : []).concat([
            '"',
@@ -32,32 +34,38 @@ export class Source extends BaseSource<Params> {
            '-', '.', ':', '#', '%', '/', '=',
         ]);
 
-        const items: Item<ActionData>[] = [];
-        for (const name of registers) {
-            const register = await fn.substitute(
-              args.denops,
-              await fn.getreg(args.denops, name, 1),
-              "[\\xfd\\x80]", '', 'g') as string;
-            if (!register){
-                continue;
-            }
+        const reginfos = await defer(
+          args.denops,
+          (helper) =>
+            registers.map((regname) => ({
+              regname,
+              regcontents: fn.getreg(helper, regname, 1).then((s) =>
+                fn.substitute(helper, s, "[\\xfd\\x80]", "", "g")
+              ) as Promise<string>,
+              regtype: fn.getregtype(helper, regname) as Promise<string>,
+            })),
+        );
 
-            items.push({
-                word: `${name}: ${register.replace(/\n/g, "\\n").slice(0, 200)}`,
-                action: {
-                  text: register,
-                  regType: await fn.getregtype(args.denops, name) as string,
-                },
-                highlights: [
-                  {
-                    name: "header",
-                    "hl_group": "Special",
-                    col: 1,
-                    width: 2,
-                  },
-                ],
-            })
-        }
+        const items: Item<ActionData>[] = reginfos
+          .filter(({ regcontents }) => regcontents)
+          .map(({ regname, regcontents, regtype }) => ({
+            word: `${regname}: ${
+              regcontents.replace(/\n/g, "\\n").slice(0, 200)
+            }`,
+            action: {
+              text: regcontents,
+              regType: regtype,
+            },
+            highlights: [
+              {
+                name: "header",
+                "hl_group": "Special",
+                col: 1,
+                width: 2,
+              },
+            ],
+          }));
+
         controller.enqueue(items);
         controller.close();
       },
