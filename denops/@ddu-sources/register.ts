@@ -13,6 +13,12 @@ export type ActionData = {
   regType?: string;
 };
 
+type RegInfo = {
+  regname: string;
+  regcontents: string;
+  regtype: string;
+};
+
 export class Source extends BaseSource<Params> {
   override kind = "word";
 
@@ -36,7 +42,7 @@ export class Source extends BaseSource<Params> {
 
         const reginfos = await defer(
           args.denops,
-          (helper) =>
+          (helper: Denops) =>
             registers.map((regname) => ({
               regname,
               regcontents: fn.getreg(helper, regname, 1).then((s) =>
@@ -44,7 +50,7 @@ export class Source extends BaseSource<Params> {
               ) as Promise<string>,
               regtype: fn.getregtype(helper, regname) as Promise<string>,
             })),
-        );
+        ) as RegInfo[];
 
         const items: Item<ActionData>[] = reginfos
           .filter(({ regcontents }) => regcontents)
