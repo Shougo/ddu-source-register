@@ -1,10 +1,10 @@
+import { Context, Item } from "https://deno.land/x/ddu_vim@v2.0.0/types.ts";
 import {
   BaseSource,
-  Context,
-  Item,
-} from "https://deno.land/x/ddu_vim@v2.0.0/types.ts";
+  OnInitArguments,
+} from "https://deno.land/x/ddu_vim@v2.0.0/base/source.ts";
 import { Denops, fn } from "https://deno.land/x/ddu_vim@v2.0.0/deps.ts";
-import { defer } from "https://deno.land/x/denops_defer@v0.4.0/batch/defer.ts";
+import { defer } from "https://deno.land/x/denops_defer@v0.6.0/batch/defer.ts";
 
 type Params = Record<never, never>;
 
@@ -19,27 +19,38 @@ type RegInfo = {
   regtype: string;
 };
 
+// deno-fmt-ignore
+const VIM_REGISTERS = [
+  '"',
+  "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+  "a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+  "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
+  "u", "v", "w", "x", "y", "z",
+  "-", ".", ":", "#", "%", "/", "=",
+] as const;
+const VIM_CLIPBOARD_REGISTERS = ["*", "+"] as const;
+
 export class Source extends BaseSource<Params> {
   override kind = "word";
+  #hasClipboard = false;
+
+  override async onInit(args: OnInitArguments<Params>): Promise<void> {
+    const { denops } = args;
+    this.#hasClipboard = await fn.has(denops, "clipboard");
+  }
 
   override gather(args: {
     denops: Denops;
     context: Context;
     sourceParams: Params;
   }): ReadableStream<Item<ActionData>[]> {
+    const registers = [
+      ...(this.#hasClipboard ? VIM_CLIPBOARD_REGISTERS : []),
+      ...VIM_REGISTERS,
+    ];
+
     return new ReadableStream({
       async start(controller) {
-        // deno-fmt-ignore
-        const registers = (await fn.has(args.denops, "clipboard") ?
-                           ['+', '*'] : []).concat([
-           '"',
-           '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-           'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-           'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-           'u', 'v', 'w', 'x', 'y', 'z',
-           '-', '.', ':', '#', '%', '/', '=',
-        ]);
-
         const reginfos = await defer(
           args.denops,
           (helper: Denops) =>
