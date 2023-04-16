@@ -1,9 +1,9 @@
-import { Context, Item } from "https://deno.land/x/ddu_vim@v2.0.0/types.ts";
+import { Context, Item } from "https://deno.land/x/ddu_vim@v2.7.1/types.ts";
 import {
   BaseSource,
   OnInitArguments,
-} from "https://deno.land/x/ddu_vim@v2.0.0/base/source.ts";
-import { Denops, fn } from "https://deno.land/x/ddu_vim@v2.0.0/deps.ts";
+} from "https://deno.land/x/ddu_vim@v2.7.1/base/source.ts";
+import { Denops, fn } from "https://deno.land/x/ddu_vim@v2.7.1/deps.ts";
 import { defer } from "https://deno.land/x/denops_defer@v0.6.0/batch/defer.ts";
 
 type Params = Record<never, never>;
@@ -28,7 +28,7 @@ const VIM_REGISTERS = [
   "u", "v", "w", "x", "y", "z",
   "-", ".", ":", "#", "%", "/", "=",
 ] as const;
-const VIM_CLIPBOARD_REGISTERS = ["*", "+"] as const;
+const VIM_CLIPBOARD_REGISTERS = ["+", "*"] as const;
 
 export class Source extends BaseSource<Params> {
   override kind = "word";
