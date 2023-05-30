@@ -1,9 +1,9 @@
-import { Context, Item } from "https://deno.land/x/ddu_vim@v2.8.3/types.ts";
+import { Context, Item } from "https://deno.land/x/ddu_vim@v2.9.0/types.ts";
 import {
   BaseSource,
   OnInitArguments,
-} from "https://deno.land/x/ddu_vim@v2.8.3/base/source.ts";
-import { Denops, fn } from "https://deno.land/x/ddu_vim@v2.8.3/deps.ts";
+} from "https://deno.land/x/ddu_vim@v2.9.0/base/source.ts";
+import { Denops, fn } from "https://deno.land/x/ddu_vim@v2.9.0/deps.ts";
 import { defer } from "https://deno.land/x/denops_defer@v0.6.0/batch/defer.ts";
 
 type Params = Record<never, never>;
