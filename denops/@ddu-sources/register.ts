@@ -1,12 +1,12 @@
-import { Context, Item } from "https://deno.land/x/ddu_vim@v2.9.0/types.ts";
+import { Context, Item } from "https://deno.land/x/ddu_vim@v3.5.0/types.ts";
 import {
   BaseSource,
   OnInitArguments,
-} from "https://deno.land/x/ddu_vim@v2.9.0/base/source.ts";
-import { Denops, fn } from "https://deno.land/x/ddu_vim@v2.9.0/deps.ts";
-import { defer } from "https://deno.land/x/denops_defer@v0.6.0/batch/defer.ts";
+} from "https://deno.land/x/ddu_vim@v3.5.0/base/source.ts";
+import { Denops, fn } from "https://deno.land/x/ddu_vim@v3.5.0/deps.ts";
+import { defer } from "https://deno.land/x/denops_defer@v1.0.0/batch/defer.ts";
 
-type Params = Record<never, never>;
+type Params = Record<string, never>;
 
 export type ActionData = {
   text: string;
