@@ -1,22 +1,18 @@
-import { Context, Item } from "https://deno.land/x/ddu_vim@v3.5.0/types.ts";
+import type { Denops } from "jsr:@denops/core@^7.0.0";
+import * as fn from "jsr:@denops/std@^7.0.0/function";
+import { accumulate } from "jsr:@milly/denops-batch-accumulate@^1.0.0";
 import {
   BaseSource,
-  OnInitArguments,
-} from "https://deno.land/x/ddu_vim@v3.5.0/base/source.ts";
-import { Denops, fn } from "https://deno.land/x/ddu_vim@v3.5.0/deps.ts";
-import { defer } from "https://deno.land/x/denops_defer@v1.0.0/batch/defer.ts";
+  type GatherArguments,
+  type OnInitArguments,
+} from "jsr:@shougo/ddu-vim@^5.0.0/source";
+import type { Item } from "jsr:@shougo/ddu-vim@^5.0.0/types";
 
 type Params = Record<string, never>;
 
 export type ActionData = {
   text: string;
   regType?: string;
-};
-
-type RegInfo = {
-  regname: string;
-  regcontents: string;
-  regtype: string;
 };
 
 // deno-fmt-ignore
@@ -39,49 +35,50 @@ export class Source extends BaseSource<Params> {
     this.#hasClipboard = await fn.has(denops, "clipboard");
   }
 
-  override gather(args: {
-    denops: Denops;
-    context: Context;
-    sourceParams: Params;
-  }): ReadableStream<Item<ActionData>[]> {
+  override gather(
+    args: GatherArguments<Params>,
+  ): ReadableStream<Item<ActionData>[]> {
+    const { denops } = args;
     const registers = [
       ...(this.#hasClipboard ? VIM_CLIPBOARD_REGISTERS : []),
       ...VIM_REGISTERS,
     ];
 
+    const createItem = async (
+      denops: Denops,
+      regname: string,
+    ): Promise<Item<ActionData> | undefined> => {
+      const reginfo = await fn.getreginfo(denops, regname);
+      const contents = reginfo.regcontents?.join("\n").replaceAll(
+        /[\xfd\x80]/g,
+        "",
+      );
+      if (!contents) return;
+      return {
+        word: `${regname}: ${contents.replaceAll(/\n/g, "\\n").slice(0, 200)}`,
+        action: {
+          text: contents,
+          regType: reginfo.regtype,
+        },
+        highlights: [
+          {
+            name: "header",
+            hl_group: "Special",
+            col: 1,
+            width: 2,
+          },
+        ],
+      };
+    };
+
     return new ReadableStream({
       async start(controller) {
-        const reginfos = await defer(
-          args.denops,
-          (helper: Denops) =>
-            registers.map((regname) => ({
-              regname,
-              regcontents: fn.getreg(helper, regname, 1).then((s) =>
-                fn.substitute(helper, s, "[\\xfd\\x80]", "", "g")
-              ) as Promise<string>,
-              regtype: fn.getregtype(helper, regname) as Promise<string>,
-            })),
-        ) as RegInfo[];
-
-        const items: Item<ActionData>[] = reginfos
-          .filter(({ regcontents }) => regcontents)
-          .map(({ regname, regcontents, regtype }) => ({
-            word: `${regname}: ${
-              regcontents.replace(/\n/g, "\\n").slice(0, 200)
-            }`,
-            action: {
-              text: regcontents,
-              regType: regtype,
-            },
-            highlights: [
-              {
-                name: "header",
-                hl_group: "Special",
-                col: 1,
-                width: 2,
-              },
-            ],
-          }));
+        const items = await accumulate(denops, async (helper) => {
+          const items = await Promise.all(
+            registers.map((regname) => createItem(helper, regname)),
+          );
+          return items.filter((item) => item != null);
+        });
 
         controller.enqueue(items);
         controller.close();
