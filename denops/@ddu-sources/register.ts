@@ -1,12 +1,14 @@
-import type { Denops } from "jsr:@denops/core@^7.0.0";
-import * as fn from "jsr:@denops/std@^7.0.0/function";
-import { accumulate } from "jsr:@milly/denops-batch-accumulate@^1.0.0";
+import type { Item } from "jsr:@shougo/ddu-vim@~6.1.0/types";
 import {
   BaseSource,
   type GatherArguments,
   type OnInitArguments,
-} from "jsr:@shougo/ddu-vim@^5.0.0/source";
-import type { Item } from "jsr:@shougo/ddu-vim@^5.0.0/types";
+} from "jsr:@shougo/ddu-vim@~6.1.0/source";
+
+import type { Denops } from "jsr:@denops/core@~7.0.0";
+import * as fn from "jsr:@denops/std@~7.1.0/function";
+
+import { accumulate } from "jsr:@milly/denops-batch-accumulate@~1.0.0";
 
 type Params = Record<string, never>;
 
