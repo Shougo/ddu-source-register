@@ -1,0 +1,17 @@
+{
+  "name": "@shougo/ddu-source-register",
+  "exports": {
+    ".": "./main.ts"
+  },
+  "publish": {
+    "include": [
+      "**/*.ts"
+    ]
+  },
+  "imports": {
+    "@denops/std": "jsr:@denops/std@~8.0.0",
+    "@milly/denops-batch-accumulate": "jsr:@milly/denops-batch-accumulate@~2.0.0",
+    "@shougo/ddu-kind-file": "jsr:@shougo/ddu-kind-file@~1.0.0",
+    "@shougo/ddu-vim": "jsr:@shougo/ddu-vim@~11.0.0"
+  }
+}
