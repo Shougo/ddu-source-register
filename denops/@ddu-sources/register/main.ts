@@ -76,10 +76,13 @@ export class Source extends BaseSource<Params> {
     return new ReadableStream({
       async start(controller) {
         const items = await accumulate(denops, async (helper) => {
-          const items = await Promise.all(
-            registers.map((regname) => createItem(helper, regname)),
-          );
-          return items.filter((item) => item != null);
+          const items: Array<Item<ActionData> | undefined> = [];
+
+          for (const regname of registers) {
+            items.push(await createItem(helper, regname));
+          }
+
+          return items.filter((item): item is Item<ActionData> => item != null);
         });
 
         controller.enqueue(items);
