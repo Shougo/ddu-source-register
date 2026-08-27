@@ -28,6 +28,9 @@ const VIM_REGISTERS = [
 ] as const;
 const VIM_CLIPBOARD_REGISTERS = ["+", "*"] as const;
 
+const isClipboardRegister = (regname: string): boolean =>
+  regname === "+" || regname === "*";
+
 export class Source extends BaseSource<Params> {
   override kind = "word";
   #hasClipboard = false;
@@ -79,7 +82,13 @@ export class Source extends BaseSource<Params> {
           const items: Array<Item<ActionData> | undefined> = [];
 
           for (const regname of registers) {
-            items.push(await createItem(helper, regname));
+            try {
+              items.push(await createItem(helper, regname));
+            } catch (e) {
+              if (!isClipboardRegister(regname)) {
+                throw e;
+              }
+            }
           }
 
           return items.filter((item): item is Item<ActionData> => item != null);
